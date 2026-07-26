@@ -7,13 +7,9 @@ import { Employee, PaginatedResponse } from '../models/employee.model';
   providedIn: 'root'
 })
 export class EmployeeService {
-  // Use relative '/api/employees' on Vercel deployment, and fallback to localhost:5000 during local development
-  private get apiUrl(): string {
-    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-      return 'http://localhost:5000/api/employees';
-    }
-    return '/api/employees';
-  }
+  // LOCAL: http://localhost:5000/api/employees
+  // PRODUCTION: Replace this with your Render.com API URL after deploying backend
+  private apiUrl = 'https://emp-management-api.onrender.com/api/employees';
 
   // Observable trigger to signal opening the Add Modal
   private openAddModalSubject = new Subject<void>();
