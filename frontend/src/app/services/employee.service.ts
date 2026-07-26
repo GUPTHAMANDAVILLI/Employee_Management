@@ -7,9 +7,7 @@ import { Employee, PaginatedResponse } from '../models/employee.model';
   providedIn: 'root'
 })
 export class EmployeeService {
-  // LOCAL: http://localhost:5000/api/employees
-  // PRODUCTION: Replace this with your Render.com API URL after deploying backend
-  private apiUrl = 'https://emp-management-api.onrender.com/api/employees';
+  private apiUrl = 'http://localhost:5000/api/employees';
 
   // Observable trigger to signal opening the Add Modal
   private openAddModalSubject = new Subject<void>();

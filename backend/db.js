@@ -1,29 +1,21 @@
 const { Pool, Client } = require('pg');
 require('dotenv').config();
 
-// Use DATABASE_URL (Render.com) or fallback to individual env vars (local development)
-const isProduction = process.env.DATABASE_URL ? true : false;
-
-const pool = isProduction
-  ? new Pool({
-      connectionString: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false },
-      connectionTimeoutMillis: 5000
-    })
-  : new Pool({
-      host: process.env.PGHOST || 'localhost',
-      port: parseInt(process.env.PGPORT || '5432'),
-      user: process.env.PGUSER || 'postgres',
-      password: process.env.PGPASSWORD || 'postgres',
-      database: process.env.PGDATABASE || 'emp_db',
-      connectionTimeoutMillis: 3000
-    });
-
+// PostgreSQL connection config
 const dbHost = process.env.PGHOST || 'localhost';
 const dbPort = parseInt(process.env.PGPORT || '5432');
 const dbUser = process.env.PGUSER || 'postgres';
 const dbPassword = process.env.PGPASSWORD || 'postgres';
 const dbName = process.env.PGDATABASE || 'emp_db';
+
+const pool = new Pool({
+  host: dbHost,
+  port: dbPort,
+  user: dbUser,
+  password: dbPassword,
+  database: dbName,
+  connectionTimeoutMillis: 3000
+});
 
 // Initial dataset with clean sequential IDs 1, 2, 3, 4, 5...
 let inMemoryStore = [
@@ -171,13 +163,13 @@ async function getEmployees({ page = 1, limit = 5, search = '' }) {
   let filtered = [...inMemoryStore];
   if (search) {
     const q = search.toLowerCase();
-    filtered = filtered.filter(e => 
-      e.name.toLowerCase().includes(q) || 
-      e.email.toLowerCase().includes(q) || 
+    filtered = filtered.filter(e =>
+      e.name.toLowerCase().includes(q) ||
+      e.email.toLowerCase().includes(q) ||
       e.dept.toLowerCase().includes(q)
     );
   }
-  
+
   // Sort ascending by ID: #1, #2, #3, #4...
   filtered.sort((a, b) => a.id - b.id);
 
