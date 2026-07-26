@@ -1,0 +1,150 @@
+<div class="employee-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Employee Directory</h1>
+      <p class="page-subtitle">Manage company employees, team assignments, and compensation.</p>
+    </div>
+    <button class="btn btn-primary" (click)="openAddModal()">
+      + Add Employee
+    </button>
+  </div>
+
+  <!-- Filter Controls -->
+  <div class="controls-card">
+    <div class="search-box">
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        (input)="onSearchInput()" 
+        placeholder="Search by name, email, or department..." 
+      />
+      <button *ngIf="searchQuery" class="clear-search" (click)="clearSearch()">✕</button>
+    </div>
+
+    <div class="page-size-selector">
+      <label for="pageSize">Per page:</label>
+      <select id="pageSize" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+        <option *ngFor="let option of pageSizeOptions" [value]="option">{{ option }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div class="state-card" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading employees...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div class="error-banner" *ngIf="errorMessage && !isLoading">
+    <span>{{ errorMessage }}</span>
+    <button (click)="loadEmployees()" class="btn-retry">Retry</button>
+  </div>
+
+  <!-- Data Table -->
+  <div class="table-card" *ngIf="!isLoading && !errorMessage">
+    <div class="table-responsive">
+      <table class="employee-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Age</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Salary (₹)</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let emp of employees">
+            <td class="id-col">#{{ emp.id }}</td>
+            <td class="name-col font-medium">{{ emp.name }}</td>
+            <td>{{ emp.age }}</td>
+            <td class="email-col">{{ emp.email }}</td>
+            <td>
+              <span class="dept-badge" [ngClass]="getDepartmentBadgeClass(emp.dept)">
+                {{ emp.dept }}
+              </span>
+            </td>
+            <td class="salary-col">₹{{ emp.salary | number }}</td>
+            <td class="text-right actions-col">
+              <button class="btn-action edit-btn" (click)="openEditModal(emp)">Edit</button>
+              <button class="btn-action delete-btn" (click)="openDeleteModal(emp)">Delete</button>
+            </td>
+          </tr>
+
+          <!-- Empty State -->
+          <tr *ngIf="employees.length === 0">
+            <td colspan="7" class="empty-cell">
+              <p *ngIf="searchQuery">No employees found matching "{{ searchQuery }}".</p>
+              <p *ngIf="!searchQuery">No employee records found in database.</p>
+              <button (click)="openAddModal()" class="btn btn-primary mt-2">+ Add Employee</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Footer -->
+    <div class="pagination-footer" *ngIf="totalEmployees > 0">
+      <div class="pagination-info">
+        Showing <strong>{{ (currentPage - 1) * pageSize + 1 }}</strong> to 
+        <strong>{{ (currentPage * pageSize > totalEmployees) ? totalEmployees : (currentPage * pageSize) }}</strong> 
+        of <strong>{{ totalEmployees }}</strong> employees
+      </div>
+
+      <div class="pagination-controls">
+        <button 
+          class="page-btn" 
+          [disabled]="currentPage === 1" 
+          (click)="goToPage(currentPage - 1)"
+        >
+          Previous
+        </button>
+
+        <button 
+          *ngFor="let page of visiblePages" 
+          class="page-number" 
+          [class.active]="page === currentPage"
+          (click)="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+
+        <button 
+          class="page-btn" 
+          [disabled]="currentPage === totalPages || totalPages === 0" 
+          (click)="goToPage(currentPage + 1)"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add/Edit Employee Modal -->
+  <app-employee-modal
+    [isOpen]="isModalOpen"
+    [employee]="selectedEmployee"
+    [isSaving]="isSaving"
+    [errorMessage]="modalErrorMessage"
+    (closeModal)="closeModal()"
+    (saveEmployee)="saveEmployee($event)"
+  ></app-employee-modal>
+
+  <!-- Delete Modal Confirmation -->
+  <div class="modal-overlay" *ngIf="isDeleteModalOpen" (click)="closeDeleteModal()">
+    <div class="confirm-card" (click)="$event.stopPropagation()">
+      <h3>Delete Employee</h3>
+      <p>Are you sure you want to delete <strong>{{ employeeToDelete?.name }}</strong>?</p>
+      <div class="confirm-actions">
+        <button class="btn btn-secondary" (click)="closeDeleteModal()">Cancel</button>
+        <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="isDeleting">
+          {{ isDeleting ? 'Deleting...' : 'Delete' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

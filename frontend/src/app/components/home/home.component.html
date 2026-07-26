@@ -1,0 +1,41 @@
+<div class="home-container">
+  <!-- Hero Header -->
+  <header class="hero-section">
+    <h1 class="hero-title">Employee Management System</h1>
+    <p class="hero-description">
+      Welcome to the employee management portal. This application helps you organize workforce details, 
+      track team assignments, manage salaries, and keep your company records up to date.
+    </p>
+    
+    <div class="hero-actions">
+      <a routerLink="/employees" class="btn btn-primary">
+        View Employees
+      </a>
+      <button (click)="openAddModal()" class="btn btn-secondary">
+        + Add New Employee
+      </button>
+    </div>
+  </header>
+
+  <!-- Application Overview -->
+  <section class="overview-section">
+    <h2 class="section-title">Application Features</h2>
+
+    <div class="overview-grid">
+      <div class="overview-card">
+        <h3>Database Storage</h3>
+        <p>All records are stored securely in PostgreSQL with complete data persistence and structured queries.</p>
+      </div>
+
+      <div class="overview-card">
+        <h3>Employee Directory</h3>
+        <p>Easily view and filter employee profiles with built-in search and pagination for quick navigation.</p>
+      </div>
+
+      <div class="overview-card">
+        <h3>Instant Add & Edit</h3>
+        <p>Add new workforce members or edit existing details using simple interactive modal dialogs.</p>
+      </div>
+    </div>
+  </section>
+</div>
