@@ -7,8 +7,8 @@ import { Employee, PaginatedResponse, EmployeeFilters } from '../models/employee
   providedIn: 'root'
 })
 export class EmployeeService {
-  private apiUrl = 'http://localhost:5000/api/employees';
-  //private apiUrl = 'https://employee-management-afgp.onrender.com/api/employees';
+
+  private apiUrl = 'https://employee-management-afgp.onrender.com/api/employees';
   private openAddModalSubject = new Subject<void>();
   openAddModal$ = this.openAddModalSubject.asObservable();
 

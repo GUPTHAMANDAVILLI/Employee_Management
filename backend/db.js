@@ -165,9 +165,12 @@ async function getEmployees({
       let conditions = [];
       let params = [];
 
-      if (search) {
-        params.push(`%${search.toLowerCase()}%`);
-        conditions.push(`(LOWER(name) LIKE $${params.length} OR LOWER(email) LIKE $${params.length} OR LOWER(dept) LIKE $${params.length})`);
+      if (search && search.trim()) {
+        const searchTerms = search.trim().toLowerCase().split(/\s+/).filter(Boolean);
+        searchTerms.forEach(term => {
+          params.push(`%${term}%`);
+          conditions.push(`(LOWER(name) LIKE $${params.length} OR LOWER(email) LIKE $${params.length} OR LOWER(dept) LIKE $${params.length} OR LOWER(COALESCE(gender, '')) LIKE $${params.length})`);
+        });
       }
 
       if (dept) {
@@ -270,12 +273,15 @@ async function getEmployees({
   // Fallback memory implementation
   let filtered = [...inMemoryStore];
 
-  if (search) {
-    const q = search.toLowerCase();
+  if (search && search.trim()) {
+    const searchTerms = search.trim().toLowerCase().split(/\s+/).filter(Boolean);
     filtered = filtered.filter(e =>
-      e.name.toLowerCase().includes(q) ||
-      e.email.toLowerCase().includes(q) ||
-      e.dept.toLowerCase().includes(q)
+      searchTerms.every(term =>
+        e.name.toLowerCase().includes(term) ||
+        e.email.toLowerCase().includes(term) ||
+        e.dept.toLowerCase().includes(term) ||
+        (e.gender || '').toLowerCase().includes(term)
+      )
     );
   }
 
