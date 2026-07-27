@@ -1,5 +1,5 @@
 
-# 👨‍💼 Employee Management System
+# 👨‍💼 Employee Management
 
 A full-stack **Employee Management System** built with **Angular 22** on the frontend and **Node.js / Express** on the backend, backed by **PostgreSQL** — with a smart in-memory fallback when no database is available.
 
