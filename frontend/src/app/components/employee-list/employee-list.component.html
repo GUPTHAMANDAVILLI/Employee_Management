@@ -76,55 +76,7 @@
           </select>
         </div>
 
-        <!-- Min Age -->
-        <div class="filter-group">
-          <label>Min Age</label>
-          <input 
-            type="number" 
-            [(ngModel)]="filters.minAge" 
-            (input)="onFilterChange()" 
-            placeholder="Min Age" 
-            min="18"
-            max="100"
-          />
-        </div>
 
-        <!-- Max Age -->
-        <div class="filter-group">
-          <label>Max Age</label>
-          <input 
-            type="number" 
-            [(ngModel)]="filters.maxAge" 
-            (input)="onFilterChange()" 
-            placeholder="Max Age" 
-            min="18"
-            max="100"
-          />
-        </div>
-
-        <!-- Min Salary -->
-        <div class="filter-group">
-          <label>Min Salary (₹)</label>
-          <input 
-            type="number" 
-            [(ngModel)]="filters.minSalary" 
-            (input)="onFilterChange()" 
-            placeholder="Min ₹" 
-            step="5000"
-          />
-        </div>
-
-        <!-- Max Salary -->
-        <div class="filter-group">
-          <label>Max Salary (₹)</label>
-          <input 
-            type="number" 
-            [(ngModel)]="filters.maxSalary" 
-            (input)="onFilterChange()" 
-            placeholder="Max ₹" 
-            step="5000"
-          />
-        </div>
 
         <!-- Sort By -->
         <div class="filter-group">

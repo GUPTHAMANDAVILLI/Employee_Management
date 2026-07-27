@@ -27,10 +27,6 @@ export interface EmployeeFilters {
   search: string;
   dept: string;
   gender: string;
-  minAge: number | null;
-  maxAge: number | null;
-  minSalary: number | null;
-  maxSalary: number | null;
   sortBy: string;
   sortDir: string;
 }

@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { debounceTime } from 'rxjs/operators';
 import { EmployeeService } from '../../services/employee.service';
 import { Employee, PaginatedResponse, EmployeeFilters } from '../../models/employee.model';
 import { EmployeeModalComponent } from '../employee-modal/employee-modal.component';
@@ -37,10 +37,6 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
     search: '',
     dept: '',
     gender: '',
-    minAge: null,
-    maxAge: null,
-    minSalary: null,
-    maxSalary: null,
     sortBy: 'id',
     sortDir: 'asc'
   };
@@ -145,10 +141,6 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
       search: '',
       dept: '',
       gender: '',
-      minAge: null,
-      maxAge: null,
-      minSalary: null,
-      maxSalary: null,
       sortBy: 'id',
       sortDir: 'asc'
     };

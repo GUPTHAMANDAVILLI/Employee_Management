@@ -33,10 +33,6 @@ export class EmployeeService {
     if (filters.search?.trim()) params = params.set('search', filters.search.trim());
     if (filters.dept) params = params.set('dept', filters.dept);
     if (filters.gender) params = params.set('gender', filters.gender);
-    if (filters.minAge != null) params = params.set('minAge', filters.minAge.toString());
-    if (filters.maxAge != null) params = params.set('maxAge', filters.maxAge.toString());
-    if (filters.minSalary != null) params = params.set('minSalary', filters.minSalary.toString());
-    if (filters.maxSalary != null) params = params.set('maxSalary', filters.maxSalary.toString());
     if (filters.sortBy) params = params.set('sortBy', filters.sortBy);
     if (filters.sortDir) params = params.set('sortDir', filters.sortDir);
 
