@@ -7,7 +7,7 @@ import { Employee, PaginatedResponse } from '../models/employee.model';
   providedIn: 'root'
 })
 export class EmployeeService {
-  private apiUrl = 'http://localhost:5000/api/employees';
+  private apiUrl = 'https://employee-management-afgp.onrender.com/api/employees';
 
   // Observable trigger to signal opening the Add Modal
   private openAddModalSubject = new Subject<void>();
@@ -17,7 +17,7 @@ export class EmployeeService {
   private refreshEmployeesSubject = new Subject<void>();
   refreshEmployees$ = this.refreshEmployeesSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   triggerOpenAddModal(): void {
     this.openAddModalSubject.next();
