@@ -85,6 +85,22 @@
           <span class="error-text" *ngIf="formErrors['age']">{{ formErrors['age'] }}</span>
         </div>
 
+        <!-- Gender -->
+        <div class="form-group">
+          <label for="gender">Gender <span class="required">*</span></label>
+          <select 
+            id="gender" 
+            [(ngModel)]="formData.gender" 
+            name="gender"
+            [class.invalid]="formErrors['gender']"
+          >
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+          <span class="error-text" *ngIf="formErrors['gender']">{{ formErrors['gender'] }}</span>
+        </div>
+
         <!-- Department -->
         <div class="form-group">
           <label for="dept">Department <span class="required">*</span></label>
@@ -100,7 +116,7 @@
         </div>
 
         <!-- Salary -->
-        <div class="form-group full-width">
+        <div class="form-group">
           <label for="salary">Salary (₹) <span class="required">*</span></label>
           <input 
             type="number" 

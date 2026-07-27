@@ -6,6 +6,7 @@ export interface Employee {
   email: string;
   dept: string;
   salary: number;
+  gender?: string;
   created_at?: string;
 }
 
@@ -15,4 +16,21 @@ export interface PaginatedResponse {
   page: number;
   limit: number;
   totalPages: number;
+  // Report summary stats
+  avgSalary?: number;
+  minSalary?: number;
+  maxSalary?: number;
+  topDept?: string;
+}
+
+export interface EmployeeFilters {
+  search: string;
+  dept: string;
+  gender: string;
+  minAge: number | null;
+  maxAge: number | null;
+  minSalary: number | null;
+  maxSalary: number | null;
+  sortBy: string;
+  sortDir: string;
 }

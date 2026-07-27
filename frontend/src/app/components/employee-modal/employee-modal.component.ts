@@ -24,6 +24,7 @@ export class EmployeeModalComponent implements OnChanges {
     newId: undefined,
     name: '',
     age: '' as unknown as number,
+    gender: 'Male',
     email: '',
     dept: 'Engineering',
     salary: '' as unknown as number
@@ -38,6 +39,7 @@ export class EmployeeModalComponent implements OnChanges {
     if (changes['employee'] && this.employee) {
       this.formData = {
         ...this.employee,
+        gender: this.employee.gender || 'Male',
         newId: this.employee.id
       };
       if (this.formData.dept && !this.departments.includes(this.formData.dept)) {
@@ -55,6 +57,7 @@ export class EmployeeModalComponent implements OnChanges {
       newId: undefined,
       name: '',
       age: '' as unknown as number,
+      gender: 'Male',
       email: '',
       dept: 'Engineering',
       salary: '' as unknown as number
@@ -90,6 +93,11 @@ export class EmployeeModalComponent implements OnChanges {
       isValid = false;
     }
 
+    if (!this.formData.gender) {
+      this.formErrors['gender'] = 'Gender is required';
+      isValid = false;
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!this.formData.email || !emailRegex.test(this.formData.email)) {
       this.formErrors['email'] = 'Valid email is required';
@@ -118,6 +126,7 @@ export class EmployeeModalComponent implements OnChanges {
         id: this.formData.id ? Number(this.formData.id) : undefined,
         newId: this.formData.newId ? Number(this.formData.newId) : undefined,
         age: Number(this.formData.age),
+        gender: this.formData.gender || 'Male',
         salary: Number(this.formData.salary)
       };
       this.saveEmployee.emit(payload);

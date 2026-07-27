@@ -2,26 +2,166 @@
   <!-- Page Header -->
   <div class="page-header">
     <div>
-      <h1 class="page-title">Employee Directory</h1>
-      <p class="page-subtitle">Manage company employees, team assignments, and compensation.</p>
+      <h1 class="page-title">Employee Directory & Reports</h1>
+      <p class="page-subtitle">Filter employee data, analyze compensation reports, and manage records.</p>
     </div>
     <button class="btn btn-primary" (click)="openAddModal()">
       + Add Employee
     </button>
   </div>
 
-  <!-- Filter Controls -->
-  <div class="controls-card">
-    <div class="search-box">
-      <input 
-        type="text" 
-        [(ngModel)]="searchQuery" 
-        (input)="onSearchInput()" 
-        placeholder="Search by name, email, or department..." 
-      />
-      <button *ngIf="searchQuery" class="clear-search" (click)="clearSearch()">✕</button>
+  <!-- Summary Report Bar -->
+  <div class="report-bar">
+    <div class="report-card">
+      <span class="report-label">Total Employees</span>
+      <span class="report-value">{{ totalEmployees }}</span>
+    </div>
+    <div class="report-card">
+      <span class="report-label">Average Salary</span>
+      <span class="report-value">₹{{ avgSalary | number:'1.0-0' }}</span>
+    </div>
+    <div class="report-card">
+      <span class="report-label">Salary Range</span>
+      <span class="report-value">₹{{ minSalary | number:'1.0-0' }} - ₹{{ maxSalary | number:'1.0-0' }}</span>
+    </div>
+    <div class="report-card">
+      <span class="report-label">Top Department</span>
+      <span class="report-value">{{ topDept }}</span>
+    </div>
+  </div>
+
+  <!-- Filter Controls Section -->
+  <div class="filter-section">
+    <div class="filter-header" (click)="toggleFilterPanel()">
+      <div class="filter-header-title">
+        <span class="filter-icon">🔍</span>
+        <span>Filter & Sort Options</span>
+      </div>
+      <button class="btn-text">{{ isFilterPanelOpen ? 'Hide Filters ▲' : 'Show Filters ▼' }}</button>
     </div>
 
+    <div class="filter-body" *ngIf="isFilterPanelOpen">
+      <div class="filter-grid">
+        <!-- Search Input -->
+        <div class="filter-group span-2">
+          <label>Search</label>
+          <div class="search-input-wrap">
+            <input 
+              type="text" 
+              [(ngModel)]="filters.search" 
+              (input)="onFilterChange()" 
+              placeholder="Search by name, email, or dept..." 
+            />
+            <button *ngIf="filters.search" class="clear-btn" (click)="clearSearch()">✕</button>
+          </div>
+        </div>
+
+        <!-- Department Filter -->
+        <div class="filter-group">
+          <label>Department</label>
+          <select [(ngModel)]="filters.dept" (change)="onFilterChange()">
+            <option value="">All Departments</option>
+            <option *ngFor="let d of departments" [value]="d">{{ d }}</option>
+          </select>
+        </div>
+
+        <!-- Gender Filter -->
+        <div class="filter-group">
+          <label>Gender</label>
+          <select [(ngModel)]="filters.gender" (change)="onFilterChange()">
+            <option value="">All Genders</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- Min Age -->
+        <div class="filter-group">
+          <label>Min Age</label>
+          <input 
+            type="number" 
+            [(ngModel)]="filters.minAge" 
+            (input)="onFilterChange()" 
+            placeholder="Min Age" 
+            min="18"
+            max="100"
+          />
+        </div>
+
+        <!-- Max Age -->
+        <div class="filter-group">
+          <label>Max Age</label>
+          <input 
+            type="number" 
+            [(ngModel)]="filters.maxAge" 
+            (input)="onFilterChange()" 
+            placeholder="Max Age" 
+            min="18"
+            max="100"
+          />
+        </div>
+
+        <!-- Min Salary -->
+        <div class="filter-group">
+          <label>Min Salary (₹)</label>
+          <input 
+            type="number" 
+            [(ngModel)]="filters.minSalary" 
+            (input)="onFilterChange()" 
+            placeholder="Min ₹" 
+            step="5000"
+          />
+        </div>
+
+        <!-- Max Salary -->
+        <div class="filter-group">
+          <label>Max Salary (₹)</label>
+          <input 
+            type="number" 
+            [(ngModel)]="filters.maxSalary" 
+            (input)="onFilterChange()" 
+            placeholder="Max ₹" 
+            step="5000"
+          />
+        </div>
+
+        <!-- Sort By -->
+        <div class="filter-group">
+          <label>Sort By</label>
+          <select [(ngModel)]="filters.sortBy" (change)="onFilterChange()">
+            <option value="id">ID</option>
+            <option value="name">Name</option>
+            <option value="age">Age</option>
+            <option value="salary">Salary</option>
+            <option value="dept">Department</option>
+            <option value="gender">Gender</option>
+          </select>
+        </div>
+
+        <!-- Sort Direction -->
+        <div class="filter-group">
+          <label>Order</label>
+          <select [(ngModel)]="filters.sortDir" (change)="onFilterChange()">
+            <option value="asc">Ascending (A-Z, 1-9)</option>
+            <option value="desc">Descending (Z-A, 9-1)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button class="btn btn-secondary btn-sm" (click)="resetFilters()">
+          ↺ Reset All Filters
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page Size selector -->
+  <div class="controls-card">
+    <div class="results-summary">
+      <span>Showing employees matching current filter setup</span>
+    </div>
     <div class="page-size-selector">
       <label for="pageSize">Per page:</label>
       <select id="pageSize" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
@@ -33,7 +173,7 @@
   <!-- Loading Indicator -->
   <div class="state-card" *ngIf="isLoading">
     <div class="spinner"></div>
-    <p>Loading employees...</p>
+    <p>Loading employee data and reports...</p>
   </div>
 
   <!-- Error Message -->
@@ -48,12 +188,23 @@
       <table class="employee-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Age</th>
+            <th (click)="toggleSort('id')" class="sortable">
+              ID <span *ngIf="filters.sortBy === 'id'">{{ filters.sortDir === 'asc' ? '↑' : '↓' }}</span>
+            </th>
+            <th (click)="toggleSort('name')" class="sortable">
+              Name <span *ngIf="filters.sortBy === 'name'">{{ filters.sortDir === 'asc' ? '↑' : '↓' }}</span>
+            </th>
+            <th (click)="toggleSort('age')" class="sortable">
+              Age <span *ngIf="filters.sortBy === 'age'">{{ filters.sortDir === 'asc' ? '↑' : '↓' }}</span>
+            </th>
+            <th>Gender</th>
             <th>Email</th>
-            <th>Department</th>
-            <th>Salary (₹)</th>
+            <th (click)="toggleSort('dept')" class="sortable">
+              Department <span *ngIf="filters.sortBy === 'dept'">{{ filters.sortDir === 'asc' ? '↑' : '↓' }}</span>
+            </th>
+            <th (click)="toggleSort('salary')" class="sortable">
+              Salary (₹) <span *ngIf="filters.sortBy === 'salary'">{{ filters.sortDir === 'asc' ? '↑' : '↓' }}</span>
+            </th>
             <th class="text-right">Actions</th>
           </tr>
         </thead>
@@ -62,6 +213,11 @@
             <td class="id-col">#{{ emp.id }}</td>
             <td class="name-col font-medium">{{ emp.name }}</td>
             <td>{{ emp.age }}</td>
+            <td>
+              <span class="gender-tag" [ngClass]="getGenderBadgeClass(emp.gender || 'Male')">
+                {{ emp.gender || 'Male' }}
+              </span>
+            </td>
             <td class="email-col">{{ emp.email }}</td>
             <td>
               <span class="dept-badge" [ngClass]="getDepartmentBadgeClass(emp.dept)">
@@ -77,10 +233,9 @@
 
           <!-- Empty State -->
           <tr *ngIf="employees.length === 0">
-            <td colspan="7" class="empty-cell">
-              <p *ngIf="searchQuery">No employees found matching "{{ searchQuery }}".</p>
-              <p *ngIf="!searchQuery">No employee records found in database.</p>
-              <button (click)="openAddModal()" class="btn btn-primary mt-2">+ Add Employee</button>
+            <td colspan="8" class="empty-cell">
+              <p>No employee records found matching your filter criteria.</p>
+              <button (click)="resetFilters()" class="btn btn-secondary mt-2">Clear Filters</button>
             </td>
           </tr>
         </tbody>

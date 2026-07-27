@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Subscription, Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { EmployeeService } from '../../services/employee.service';
-import { Employee, PaginatedResponse } from '../../models/employee.model';
+import { Employee, PaginatedResponse, EmployeeFilters } from '../../models/employee.model';
 import { EmployeeModalComponent } from '../employee-modal/employee-modal.component';
 
 @Component({
@@ -19,6 +19,12 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
   isLoading = true;
   errorMessage = '';
 
+  // Report Summary Statistics
+  avgSalary = 0;
+  minSalary = 0;
+  maxSalary = 0;
+  topDept = 'N/A';
+
   // Pagination state
   currentPage = 1;
   pageSize = 5;
@@ -26,9 +32,23 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
   totalPages = 1;
   pageSizeOptions = [5, 10, 20, 50];
 
-  // Search filter
-  searchQuery = '';
-  private searchSubject = new Subject<string>();
+  // Filters State
+  filters: EmployeeFilters = {
+    search: '',
+    dept: '',
+    gender: '',
+    minAge: null,
+    maxAge: null,
+    minSalary: null,
+    maxSalary: null,
+    sortBy: 'id',
+    sortDir: 'asc'
+  };
+
+  departments = ['Engineering', 'Marketing', 'Human Resources', 'Finance', 'Sales', 'Operations', 'Design', 'Product'];
+  isFilterPanelOpen = true;
+
+  private filterSubject = new Subject<void>();
 
   // Modal State
   isModalOpen = false;
@@ -51,11 +71,10 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadEmployees();
 
-    // Debounced search input handler
+    // Debounced filter input handler
     this.subscription.add(
-      this.searchSubject.pipe(
-        debounceTime(300),
-        distinctUntilChanged()
+      this.filterSubject.pipe(
+        debounceTime(300)
       ).subscribe(() => {
         this.currentPage = 1;
         this.loadEmployees();
@@ -85,33 +104,70 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
   loadEmployees(): void {
     this.isLoading = true;
     this.errorMessage = '';
-    this.cdr.detectChanges(); // Ensure UI reflects loading state instantly
+    this.cdr.detectChanges();
 
-    this.employeeService.getEmployees(this.currentPage, this.pageSize, this.searchQuery).subscribe({
+    this.employeeService.getEmployees(this.currentPage, this.pageSize, this.filters).subscribe({
       next: (res: PaginatedResponse) => {
         this.employees = res.employees;
         this.totalEmployees = res.total;
         this.currentPage = res.page;
         this.totalPages = res.totalPages || 1;
+        
+        // Report statistics
+        this.avgSalary = res.avgSalary || 0;
+        this.minSalary = res.minSalary || 0;
+        this.maxSalary = res.maxSalary || 0;
+        this.topDept = res.topDept || 'N/A';
+
         this.isLoading = false;
-        this.cdr.detectChanges(); // Immediately update UI without needing clicks
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error fetching employee list:', err);
         this.errorMessage = 'Failed to connect to backend server. Make sure Node.js server is running.';
         this.isLoading = false;
-        this.cdr.detectChanges(); // Immediately update UI on error
+        this.cdr.detectChanges();
       }
     });
   }
 
-  onSearchInput(): void {
-    this.searchSubject.next(this.searchQuery);
+  onFilterChange(): void {
+    this.filterSubject.next();
   }
 
   clearSearch(): void {
-    this.searchQuery = '';
-    this.searchSubject.next('');
+    this.filters.search = '';
+    this.onFilterChange();
+  }
+
+  resetFilters(): void {
+    this.filters = {
+      search: '',
+      dept: '',
+      gender: '',
+      minAge: null,
+      maxAge: null,
+      minSalary: null,
+      maxSalary: null,
+      sortBy: 'id',
+      sortDir: 'asc'
+    };
+    this.currentPage = 1;
+    this.loadEmployees();
+  }
+
+  toggleSort(field: string): void {
+    if (this.filters.sortBy === field) {
+      this.filters.sortDir = this.filters.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.filters.sortBy = field;
+      this.filters.sortDir = 'asc';
+    }
+    this.onFilterChange();
+  }
+
+  toggleFilterPanel(): void {
+    this.isFilterPanelOpen = !this.isFilterPanelOpen;
   }
 
   onPageSizeChange(): void {
@@ -253,6 +309,14 @@ export class EmployeeListComponent implements OnInit, OnDestroy {
       case 'finance': return 'badge-finance';
       case 'sales': return 'badge-sales';
       default: return 'badge-default';
+    }
+  }
+
+  getGenderBadgeClass(gender: string): string {
+    switch ((gender || '').toLowerCase()) {
+      case 'female': return 'badge-female';
+      case 'male': return 'badge-male';
+      default: return 'badge-other';
     }
   }
 }
