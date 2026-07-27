@@ -8,14 +8,27 @@ const dbUser = process.env.PGUSER || 'postgres';
 const dbPassword = process.env.PGPASSWORD || 'postgres';
 const dbName = process.env.PGDATABASE || 'emp_db';
 
-const pool = new Pool({
-  host: dbHost,
-  port: dbPort,
-  user: dbUser,
-  password: dbPassword,
-  database: dbName,
-  connectionTimeoutMillis: 3000
-});
+let pool;
+
+if (process.env.DATABASE_URL) {
+  // Production (Render + Neon)
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
+} else {
+  // Local PostgreSQL
+  pool = new Pool({
+    host: dbHost,
+    port: dbPort,
+    user: dbUser,
+    password: dbPassword,
+    database: dbName,
+    connectionTimeoutMillis: 3000
+  });
+}
 
 // Initial dataset with clean sequential IDs 1, 2, 3, 4, 5...
 let inMemoryStore = [
@@ -69,7 +82,7 @@ async function ensureDatabaseExists() {
     await rootClient.end();
     return true;
   } catch (err) {
-    await rootClient.end().catch(() => {});
+    await rootClient.end().catch(() => { });
     return false;
   }
 }
@@ -80,8 +93,13 @@ async function initDb() {
     try {
       client = await pool.connect();
     } catch (connErr) {
-      if (connErr.code === '3D000' || connErr.message.includes('does not exist')) {
+      // Only try to create the database in local development
+      if (
+        !process.env.DATABASE_URL &&
+        (connErr.code === '3D000' || connErr.message.includes('does not exist'))
+      ) {
         const created = await ensureDatabaseExists();
+
         if (created) {
           client = await pool.connect();
         } else {
